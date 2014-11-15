@@ -19,9 +19,9 @@ abstract class DatabaseAbstract implements DatabaseInterface
     
     /**
      *
-     * @var PDO 
+     * @var array 
      */
-    private $db_params;
+    private $db_configs;
     
     /**
      *
@@ -33,7 +33,13 @@ abstract class DatabaseAbstract implements DatabaseInterface
      *
      * @var integer 
      */
-    public $id;    
+    public $id;  
+    
+    /**
+     *
+     * @var mixed 
+     */
+    public $params;      
     
     /**
      *
@@ -49,21 +55,21 @@ abstract class DatabaseAbstract implements DatabaseInterface
      */
     public function parseDatabaseConfig($file)
     {
-        return $this->db_params = (array) parse_ini_file($file);
+        return $this->db_configs = (array) parse_ini_file($file);
     }    
  
     /**
      * 
      * 
-     * @param array $db_params Database params
+     * @param array $db_configs Database params
      */
     public function connect() 
     {
         try {
-            $database   = $this->db_params['database'];
-            $server     = $this->db_params['server'];
-            $username   = $this->db_params['username'];
-            $password   = $this->db_params['password'];        
+            $database   = $this->db_configs['database'];
+            $server     = $this->db_configs['server'];
+            $username   = $this->db_configs['username'];
+            $password   = $this->db_configs['password'];        
             $dns        = "mysql:host=$server;dbname=$database";
             $this->pdo  = new PDO( $dns, $username, $password);             
         } catch (Exception $e) {

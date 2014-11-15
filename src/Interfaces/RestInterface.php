@@ -5,8 +5,23 @@ namespace src\Interfaces;
 /**
  * Rest api interface
  */
-interface RestInterface {
- 
+interface RestInterface 
+{
+    /**
+     * Get url segments
+     * 
+     * @param string $baseUri
+     * @return array
+     */
+    public function getUrlSegments($baseUri = "index.php");
+    
+    /**
+     * Get url segments
+     * 
+     * @return mixed
+     */
+    public function getUrlparams();    
+    
     /**
      * Post method 
      */

@@ -1,5 +1,4 @@
 <?php
-
 namespace src\Abstracts;
 
 use src\Interfaces\RestInterface;
@@ -10,171 +9,123 @@ use src\Interfaces\RestInterface;
  */
 abstract class RestAbstract implements RestInterface 
 {
+    use \src\Traits\JsonTrait;
     
     /**
      *
-     * @var string 
+     * @var array 
      */
-    protected $postDatas;
+    public $url_segments;
     
     /**
      *
-     * @var string 
+     * @var array 
      */
-    protected $getDatas;
-    
-    
-    /**
-     * Return json errors
-     * 
-     * @param string  $status  Json Status return
-     * @param string  $message Message returned in Json
-     * @param integer $code    Http status code
-     * 
-     * @access protected
-     */
-    protected function createJsonError($status, $message, $code)
-    {
-        $error = array($status => array(
-            'message' => $message,
-            'code' => $code
-        ));
-        die(json_encode($error));        
-    }
+    public $query_string;    
     
     /**
-     * POST request
-     * 
-     * @param \src\Database $database Database object
+     *
+     * @var mixed 
      */
-    public function post($database) 
+    public $params = array();      
+    
+    /**
+     * Get url segments
+     * If url doesn't match "/table/id" format, generate json error 
+     * 
+     * @param  string        $baseUri
+     * @return array|boolean
+     */
+    public function getUrlSegments($baseUri = 'index.php')
     {
-        if ($this->postDatas) {
-            $this->db->insert($this->table, $this->postDatas)->query();
-            $this->createJsonError('success', 'Success', 200);
+        $phpSelf    = (string) filter_input(INPUT_SERVER, "PHP_SELF");     
+        
+        $segments   = (array) explode('/', 
+                str_replace("/$baseUri/", '', $phpSelf));
+        
+        if (!empty($segments[0])) {
+            if (isset($segments[1]) && ($segments[1] != $baseUri)) {
+                return (array) $this->url_segments = $segments;
+            } else if (!isset($segments[1])) {
+                return (array) $this->url_segments = $segments; 
+            }
         } else {
-            $this->createJsonError('error', 'No content', 204);
-        }        
-    }
-    
-    /**
-     * GET request
-     * 
-     * @param \src\Database $database Database object
-     */
-    public function get($database) 
-    {
-        $statement  = $pdo->prepare("SELECT * FROM table");
-        $statement->execute();
-        $results    = $statement->fetchAll(PDO::FETCH_ASSOC);
-        $json       = json_encode($results);        
-        
-        $this->db->select('*')
-        ->from($this->table)
-        
-        ->where('id', $this->id)
-        ->order_by($this->getGetDatas('order_by'), $this->getGetDatas('order'))
-        ->limit(intval($this->getGetDatas('limit')), 
-                intval($this->getGetDatas('offset')))
-        ->query();        
-        
-        $result = (!empty($this->index)) ? 
-            $this->db->fetch_all() : $this->db->fetch_array() ;
-        
-        if($result){
-            die(json_encode($result));
-        } else {
-            $this->createJsonError('error', 'No content', 204);
-        }               
-    }
-    
-    /**
-     * Put method
-     * 
-     * @access public
-     */
-    public function put() 
-    {
-        $this->db->select('*')
-        ->from($this->table)
-        ->where($this->index, $this->id)
-        ->query();
-        
-        $result = $this->db->fetch_array();
-        
-        if ($result) {
-            $this->db->update($this->table)
-            ->set($this->getPutDatas())
-            ->where($this->index, $this->id)
-            ->query();
-            
-            $this->createJsonError('success', 'Success', 200);
-
-        } else {
-            $this->createJsonError('error', 'No content', 204);
-        }        
-    }
-    
-    /**
-     * Delete method
-     * 
-     * @access public
-     */
-    public function delete() 
-    {
-        $this->db->select('*')
-        ->from($this->table)
-        ->where($this->index, $this->id)
-        ->query();
-        
-        $result = $this->db->fetch_array();
-        
-        if ($result) {
-            $this->db->delete($this->table)
-            ->where($this->index, $this->id)
-            ->query();
-            
-            $this->createJsonError('success', 'Success', 200);
-
-        } else {
-            $this->createJsonError('error', 'No content', 204);
+            $this->createJsonMessage('error', 'Wrong url api', 404);
+            return false;
         }
     }
     
+    /**
+     * Get url params
+     * 
+     * @return array
+     */
+    public function getUrlParams()
+    {
+        $queryString    = (string) filter_input(INPUT_SERVER, "QUERY_STRING");      
+        
+        if (!empty($queryString)) {
+            $newQueryString         = explode('&', $queryString);
+            foreach ($newQueryString as $key) {
+                $var = explode('=', $key);
+                $this->params[$var[0]] = $var[1];
+            }
+        }
+        
+        return $this->params;
+    }    
+    
     
     /**
-     * Get get datas
+     * Get $_GET parameters
      * 
-     * @param  string $index
-     * @return string
+     * @return array
      */
-    private function getGetDatas($index = '')
+    public function get()
     {
-        $request = (string) filter_input(INPUT_GET, $index);
-        return (!empty($request)) ? $request : false ; 
+        $this->params['start_query'] = (string) 'select';
+        return (array) $this->params;
     }
     
     /**
-     * Get post datas
+     * Get $_POST datas
      * 
-     * @param  string $index
-     * @return string
+     * @return array
      */
-    private function getPostDatas($index = '')
+    public function post()
     {
-        $request = (string) filter_input(INPUT_POST, $index);
-        return (!empty($request)) ? $request : false ; 
+        $this->params = (array) $_POST;
+        $this->params['start_query'] = (string) 'insert';
+        
+        return (array) $this->params;
     }
     
     /**
-     * Get put datas
+     * Get Http PUT datas
      * 
-     * @return string
+     * @return array
      */
-    private function getPutDatas()
+    public function put()
     {
         $output = array();
-        parse_str(file_get_contents('php://input'), $output);
-        return (string) $output;
+        parse_str(file_get_contents("php://input"),$output);
+        $this->params['start_query'] = (string) 'update';
+  
+        foreach ($output as $key => $value) {
+            $this->params[$key] = (string) $value;
+        }        
+        
+        return (array) $this->params;
+    }
+    
+    /**
+     * Prepare Http delete
+     * 
+     * @return array
+     */
+    public function delete()
+    {
+        $this->params['start_query'] = (string) 'delete';
+        return (array) $this->params;
     }    
 }
