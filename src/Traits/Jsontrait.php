@@ -19,7 +19,7 @@ trait JsonTrait {
             'message' => $message,
             'code' => $code
         ));
-        echo json_encode($error);        
+        die(json_encode($error));        
     }    
 }
 

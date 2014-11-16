@@ -8,22 +8,30 @@ use src\Abstracts\RestAbstract;
  * Rest api interface
  */
 class PMA extends RestAbstract 
-{     
+{   
     /**
      *
      * @var \src\Database
      */
     public $database;
+    
+    /**
+     *
+     * @var array
+     */
+    public $ip;    
         
     
     /**
      * Constructor
      * 
      * @param \src\Database $database Database object
+     * @param string        $ip       File containing allowed ips
      */
-    public function __construct(\src\Database $database)
+    public function __construct(\src\Database $database, $ip)
     {
         $this->database = $database;
+        $this->ip       = parse_ini_file($ip);
     }
     
     /**
@@ -43,7 +51,23 @@ class PMA extends RestAbstract
      */
     public function authentifyRequest()
     {
-        return true;    
+        $ipsArray = explode(',', $this->ip['allowed_ips']);
+        
+        $httpClientIp   = filter_input(INPUT_SERVER, 'HTTP_CLIENT_IP');
+        $httpXForwarded = filter_input(INPUT_SERVER, 'HTTP_X_FORWARDED_FOR');
+        $remoteAddr     = filter_input(INPUT_SERVER, 'REMOTE_ADDR');
+        
+        if (!empty($httpClientIp)) {
+            $ip = $httpClientIp;
+        } elseif (!empty($httpXForwarded)) {
+            $ip = $httpXForwarded;
+        } else {
+            $ip = $remoteAddr;
+        }        
+        
+        if (!in_array($ip, $ipsArray)) {
+            return $this->createJsonMessage('error', 'Not authorized', 404);            
+        }
     }    
     
     /**
