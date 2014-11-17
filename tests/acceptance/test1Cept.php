@@ -1,7 +1,7 @@
 <?php 
 $I = new AcceptanceTester($scenario);
 $I->wantTo('check that post api works');
-$linkPost = 'http://localhost:8888/test';
+$linkPost = 'http://localhost/test';
 $postfieldsPost = array(
     'username' => 'cacao_sucre',
     'email' => 'cacao_sucre@hotmail.fr'

@@ -1,7 +1,7 @@
 <?php 
 $I = new AcceptanceTester($scenario);
 $I->wantTo('check that put api works');
-$linkPut = 'http://localhost:8888/test/1';
+$linkPut = 'http://localhost/test/1';
 $postfieldsPut = array(
     'username' => 'florilege_edit',
     'email' => 'florilege_edit@hotmail.fr'

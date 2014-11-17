@@ -27,9 +27,23 @@ Run acceptance Tests with CodeCeption
 
 1. Create a "test" database, with a "test" table.
 
-2. Inside "test" table, add "id, username, email" columns.
+2. Inside "test" table, add columns "id, username, email".
 
-3. Open "tests/acceptance.suite.yml" and fill in the correct parameters to connect to your database.
+3. Open "tests/acceptance.suite.yml" and fill in the correct parameters to connect to your database (Be sure to specify ports if needed).
+    modules:
+        enabled: [Db, PhpBrowser, AcceptanceHelper]
+        config:
+            PhpBrowser:
+                url: 'http://localhost/' #If port != 80, use 'http://localhost:myport'
+            Db:
+                dsn: 'mysql:host=localhost;dbname=test' #If port != 80, use 'mysql:host=localhost:myport;dbname=test'
+                user: 'root'
+                password: ''
+                dump: 'tests/_data/dump.sql'
+                populate: true
+                cleanup: false     
+
+4. if you're a port different than 80, please specify it in "tests/acceptance/test*Cept.php"
 
 4. Open your console and run 
     php codecept.phar run

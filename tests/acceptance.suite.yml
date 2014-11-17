@@ -9,11 +9,11 @@ modules:
     enabled: [Db, PhpBrowser, AcceptanceHelper]
     config:
         PhpBrowser:
-            url: 'http://localhost:8888/'
+            url: 'http://localhost/'
         Db:
-            dsn: 'mysql:host=localhost:8889;dbname=test'
+            dsn: 'mysql:host=localhost;dbname=test'
             user: 'root'
-            password: 'root'
+            password: ''
             dump: 'tests/_data/dump.sql'
             populate: true
             cleanup: false            
