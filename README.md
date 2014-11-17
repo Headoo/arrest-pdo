@@ -57,7 +57,9 @@ IP Access control
 ------------------
 
 To allow access to specific ip addresses, open "ips.ini" file, and fill each ip address after a comma, like this:
-```allowed_ips=127.0.0.1,0.0.0.0```
+```
+    allowed_ips=127.0.0.1,0.0.0.1
+```
 
 
 Change database configs
