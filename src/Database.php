@@ -90,7 +90,7 @@ class Database extends DatabaseAbstract
      */
     private function selectQuery()
     {
-        $sql    = "SELECT * FROM " . $this->table;
+        $sql    = "SELECT * FROM ".$this->db_configs['database'].".".$this->table;
         $values = array();
         $customPk = (isset($this->custom_pk[$this->table])) ? $this->custom_pk[$this->table] : 'id';
         
@@ -122,7 +122,7 @@ class Database extends DatabaseAbstract
      */    
     private function insertQuery()
     {
-        $sql  = "INSERT INTO " . $this->table . " (";
+        $sql  = "INSERT INTO ".$this->db_configs['database'].".".$this->table . " (";
         
         $count  = array('0' => 0, '1' => 0);
         $values = array();
@@ -153,7 +153,7 @@ class Database extends DatabaseAbstract
      */     
     private function updateQuery()
     {
-        $sql        = "UPDATE " . $this->table . " SET ";
+        $sql        = "UPDATE ".$this->db_configs['database'].".".$this->table . " SET ";
         $customPk   = (isset($this->custom_pk[$this->table])) ? 
                 $this->custom_pk[$this->table] : 'id';
         
@@ -183,7 +183,7 @@ class Database extends DatabaseAbstract
     {
         $customPk   = (isset($this->custom_pk[$this->table])) ? 
                 $this->custom_pk[$this->table] : 'id';        
-        $sql    = "DELETE FROM " . $this->table . " WHERE $customPk=:id";
+        $sql    = "DELETE FROM ".$this->db_configs['database'].".".$this->table . " WHERE $customPk=:id";
         $values = array(':id' => $this->id);
         
         return $this->execute('delete', $sql, $values);          

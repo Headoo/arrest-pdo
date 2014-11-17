@@ -43,7 +43,7 @@ abstract class DatabaseAbstract implements DatabaseInterface
      *
      * @var array 
      */
-    private $db_configs;
+    public $db_configs;
     
     /**
      *
