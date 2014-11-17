@@ -13,6 +13,7 @@ $directory = __DIR__ . DIRECTORY_SEPARATOR;
 
 $database   = new \src\Database($directory . 'database.ini');
 $database->connect();
+//$database->setCustomPkFieldsPerTable(array('test' => 'testid'));
 $database->mapDatabase();
 $database->max_queries = 10;
 

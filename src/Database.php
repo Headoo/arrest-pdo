@@ -37,6 +37,12 @@ class Database extends DatabaseAbstract
     public $max_queries = 30;
     
     /**
+     *
+     * @var array 
+     */
+    public $custom_pk = array();    
+    
+    /**
      * Constructor
      * 
      * @param string $file Database configuration files
@@ -65,6 +71,17 @@ class Database extends DatabaseAbstract
         
         return $result;
     }
+     
+    /**
+     * If pk != "id", set custom pk field
+     * 
+     * @param  array $values Table=>field array association
+     * @return array
+     */
+    public function setCustomPkFieldsPerTable($values)
+    {
+        return (array) $this->custom_pk = $values;
+    }
     
     /**
      * Build select query
@@ -74,10 +91,11 @@ class Database extends DatabaseAbstract
     private function selectQuery()
     {
         $sql    = "SELECT * FROM " . $this->table;
-        $values = array();      
+        $values = array();
+        $customPk = (isset($this->custom_pk[$this->table])) ? $this->custom_pk[$this->table] : 'id';
         
         if (!empty($this->id)) {
-            $sql .= " WHERE id=$this->id";
+            $sql .= " WHERE $customPk=$this->id";
         }      
         if (!empty($this->params['order_by'])) {
             $orderBy = $this->params['order_by'];
@@ -93,7 +111,7 @@ class Database extends DatabaseAbstract
         } else {
             $sql .= " LIMIT 0,$this->max_queries";
         }
-        
+
         return $this->execute('select', $sql, $values);
     }
     
@@ -135,7 +153,9 @@ class Database extends DatabaseAbstract
      */     
     private function updateQuery()
     {
-        $sql  = "UPDATE " . $this->table . " SET ";
+        $sql        = "UPDATE " . $this->table . " SET ";
+        $customPk   = (isset($this->custom_pk[$this->table])) ? 
+                $this->custom_pk[$this->table] : 'id';
         
         $count  = 0;
         $values = array();
@@ -147,7 +167,7 @@ class Database extends DatabaseAbstract
                 $values[":$key"] = $var;
             }
         }
-        $sql .= " WHERE id=:id";
+        $sql .= " WHERE $customPk=:id";
         
         $values[":id"] = $this->id;
         
@@ -161,7 +181,9 @@ class Database extends DatabaseAbstract
      */     
     private function deleteQuery()
     {
-        $sql    = "DELETE FROM " . $this->table . " WHERE id=:id";
+        $customPk   = (isset($this->custom_pk[$this->table])) ? 
+                $this->custom_pk[$this->table] : 'id';        
+        $sql    = "DELETE FROM " . $this->table . " WHERE $customPk=:id";
         $values = array(':id' => $this->id);
         
         return $this->execute('delete', $sql, $values);          
@@ -173,7 +195,6 @@ class Database extends DatabaseAbstract
      * @param  string $type   Request type (select, insert, update, delete)
      * @param  string $sql    Prepared statement
      * @param  array  $values Values to attach to the request 
-     * @return mixed
      */
     private function execute($type, $sql, $values) 
     {
@@ -190,9 +211,9 @@ class Database extends DatabaseAbstract
         
         if (is_bool($data)) {
             if (false === $data) {
-                return $this->createJsonMessage('error', 'Request error', 204);
+                echo $this->createJsonMessage('error', 'Request error', 204);
             } else {
-                return $this->createJsonMessage('success', 'Request done', 200);
+                echo $this->createJsonMessage('success', 'Request done', 200);
             }
         } else {
             echo json_encode($data);

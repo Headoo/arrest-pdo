@@ -4,16 +4,16 @@ PHP MYSQL API
 About
 -----
 
-Php-Mysql-Api is a tested "plug-n-play" RESTful API for your MySQL database with ip addresses access control.
-It provides a REST API that maps directly to your database stucture with no configuation.
+Php-Mysql-Api "plug-n-play" RESTful API for your MySQL database, including ip addresses access control.
+It provides a REST API that maps directly to your database stucture with no configuration.
 
-This repository is tested with CodeCeption.
+This repository is fully tested with CodeCeption.
 
 
 Requirements
 ------------
 
-Require PHP version 5.4 or greater, Mysql 5 or greater.
+Require PHP version 5.4 or greater and Mysql 5 or greater.
 
 
 Installation
