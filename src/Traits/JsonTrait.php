@@ -5,7 +5,7 @@
  *
  * PHP version 5
  *
- * @category  Interfaces
+ * @category  Traits
  * @package   php-mysql-api
  * @author    Edouard Kombo <edouard.kombo@gmail.com>, tech@headoo.com
  * @license   http://www.opensource.org/licenses/mit-license.php MIT License
@@ -13,33 +13,35 @@
  * @link      http://creativcoders.wordpress.com
  * @since     0.0.0
  */
-namespace src\Interfaces;
+namespace src\Traits;
 
 /**
- * Database Interface
+ * Json Trait
  *
- * @category Interfaces
+ * @category Traits
  * @package  php-mysql-api
  * @author   Edouard Kombo <edouard.kombo@gmail.com>, tech@headoo.com
  * @license  http://www.opensource.org/licenses/mit-license.php MIT License
  * @link     http://creativcoders.wordpress.com
  */
-interface DatabaseInterface {
-
+trait JsonTrait {
+    
     /**
-     * Parse database config method
+     * Return json errors
      * 
-     * @param string $file
+     * @param string  $status  Json Status return
+     * @param string  $message Message returned in Json
+     * @param integer $code    Http status code
+     * 
+     * @access protected
      */
-    public function parseDatabaseConfig($file);
-    
-    /**
-     * Connect method 
-     */
-    public function connect();
-    
-    /**
-     * Map method
-     */
-    public function mapDatabase();   
+    public function createJsonMessage($status, $message, $code)
+    {
+        $error = array($status => array(
+            'message' => $message,
+            'code' => $code
+        ));
+        die(json_encode($error));        
+    }    
 }
+

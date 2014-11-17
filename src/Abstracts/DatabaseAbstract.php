@@ -1,5 +1,18 @@
 <?php
 
+/**
+ * Main docblock
+ *
+ * PHP version 5
+ *
+ * @category  Abstracts
+ * @package   php-mysql-api
+ * @author    Edouard Kombo <edouard.kombo@gmail.com>, tech@headoo.com
+ * @license   http://www.opensource.org/licenses/mit-license.php MIT License
+ * @version   GIT: 1.0.0
+ * @link      http://creativcoders.wordpress.com
+ * @since     0.0.0
+ */
 namespace src\Abstracts;
 
 use src\Interfaces\DatabaseInterface;
@@ -8,6 +21,15 @@ use \PDO;
 use \Exception;
 use \PDOException;
 
+/**
+ * Database Abstract
+ *
+ * @category Interfaces
+ * @package  php-mysql-api
+ * @author   Edouard Kombo <edouard.kombo@gmail.com>, tech@headoo.com
+ * @license  http://www.opensource.org/licenses/mit-license.php MIT License
+ * @link     http://creativcoders.wordpress.com
+ */
 abstract class DatabaseAbstract implements DatabaseInterface
 {
     

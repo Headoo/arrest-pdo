@@ -1,9 +1,31 @@
 <?php
 
+/**
+ * Main docblock
+ *
+ * PHP version 5
+ *
+ * @category  Src
+ * @package   php-mysql-api
+ * @author    Edouard Kombo <edouard.kombo@gmail.com>, tech@headoo.com
+ * @license   http://www.opensource.org/licenses/mit-license.php MIT License
+ * @version   GIT: 1.0.0
+ * @link      http://creativcoders.wordpress.com
+ * @since     0.0.0
+ */
 namespace src;
 
 use src\Abstracts\DatabaseAbstract;
 
+/**
+ * Database Controller
+ *
+ * @category Src
+ * @package  php-mysql-api
+ * @author   Edouard Kombo <edouard.kombo@gmail.com>, tech@headoo.com
+ * @license  http://www.opensource.org/licenses/mit-license.php MIT License
+ * @link     http://creativcoders.wordpress.com
+ */
 class Database extends DatabaseAbstract
 {
     use \src\Traits\JsonTrait;
