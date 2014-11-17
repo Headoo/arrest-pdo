@@ -25,9 +25,9 @@ Simply put these files into a folder somewhere on your server. Then edit "databa
 Run acceptance Tests with CodeCeption
 -------------------------------------
 
-1. Create a "test" database, with a "test" table.
+1. Create new database and new table. Name each of them "test".
 
-2. Inside "test" table, add columns "id, username, email".
+2. Inside "test" table, add 3 columns (id, username, email).
 
 3. Open "tests/acceptance.suite.yml" and fill in the correct parameters to connect to your database (Be sure to specify ports if needed).
 ```
@@ -45,7 +45,7 @@ Run acceptance Tests with CodeCeption
                     cleanup: false
 ```     
 
-4. if you're a port different than 80, please specify it in "tests/acceptance/test*Cept.php"
+4. if you're using a different port than 80, please specify it in "tests/acceptance/test*Cept.php"
 
 5. Open your console and run
 ```php codecept.phar run```
@@ -53,8 +53,29 @@ Run acceptance Tests with CodeCeption
 NB: When you're testing, be sure that "database.ini" configurations match codeception database parameters.
 
 
-Documentation
--------------
+IP Access control
+------------------
+
+To allow access to specific ip addresses, open "ips.ini" file, and fill each ip address after a comma, like this:
+```allowed_ips=127.0.0.1,0.0.0.0```
+
+
+Change database configs
+-----------------------
+
+When you have finished with tests, you can change database configurations.
+Open "database.ini" file, and fill each ip address after a comma, like this:
+```
+    server=localhost
+    database=MYDATABASE
+    username=root
+    password=
+    verbose=false
+```
+
+
+MORE Documentation
+------------------
 
 For example lets suppose you have set up php-mysql-api at http://api.example.com and your database has a table in it called "users". To get a list of customers you would simply need to do:
 
@@ -78,17 +99,17 @@ GET http://api.example.com/users?limit=50
 // Get 50 rows from the "users" table ordered by the "date" field
 GET http://api.example.com/users?limit=50&order_by=date&order=desc
 
-// Create a new row in the "customers" table where the POST data corresponds to the database fields
+// Create a new row in the "users" table where the POST data corresponds to the database fields
 POST http://api.example.com/users
 
-// Update customer "123" in the "customers" table where the PUT data corresponds to the database fields
+// Update customer "123" in the "users" table where the PUT data corresponds to the database fields
 PUT http://api.example.com/users/123
 
-// Delete customer "123" from the "customers" table
+// Delete customer "123" from the "users" table
 DELETE http://api.example.com/users/123
 ```
 
-All responses are in the JSON format. For example a GET response from the "customers" table might look like:
+All responses are in the JSON format. For example a GET response from the "users" table might look like:
 
 ```json
 [
@@ -128,6 +149,16 @@ The following codes and message are avaiable:
 * 200 Success
 * 204 No Content
 * 404 Not Found
+
+
+By default, primary key fields are nammed "id", when you have tables with a different name than "id", you can customize them in index.php file, like this.
+```
+    $database   = new \src\Database($directory . 'database.ini');
+    $database->connect();
+    $database->setCustomPkFieldsPerTable(array(TABLE => PK));
+    $database->mapDatabase();
+    $database->max_queries = 10;
+``` 
 
 
 Contributing
