@@ -20,6 +20,8 @@ $database->max_queries = 10;
 $pma        = new \src\PMA($database, $directory . 'ips.ini');
 $pma->getUrlSegments();
 $pma->getUrlParams();
+//$pma->allowedTables(array('test'));
+//$pma->forbiddenMethods(array('GET', 'PUT', 'DELETE'));
 $pma->hydrateDatabaseProperties();
 $pma->authentifyRequest();
 $pma->rest();

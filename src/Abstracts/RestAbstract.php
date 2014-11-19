@@ -15,13 +15,13 @@ abstract class RestAbstract implements RestInterface
      *
      * @var array 
      */
-    public $url_segments;
+    public $urlSegments;
     
     /**
      *
      * @var array 
      */
-    public $query_string;    
+    public $queryString;    
     
     /**
      *
@@ -45,14 +45,15 @@ abstract class RestAbstract implements RestInterface
         
         if (!empty($segments[0])) {
             if (isset($segments[1]) && ($segments[1] != $baseUri)) {
-                return (array) $this->url_segments = $segments;
+                $result = (array) $this->urlSegments = $segments;
             } else if (!isset($segments[1])) {
-                return (array) $this->url_segments = $segments; 
+                $result = (array) $this->urlSegments = $segments; 
             }
         } else {
             $this->createJsonMessage('error', 'Wrong url api', 404);
-            return false;
+            $result = false;
         }
+        return $result;
     }
     
     /**

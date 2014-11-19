@@ -38,7 +38,19 @@ class PMA extends RestAbstract
      *
      * @var array
      */
-    public $ip;    
+    public $ip; 
+    
+    /**
+     *
+     * @var array
+     */
+    public $forbiddenMethods = array();
+    
+    /**
+     *
+     * @var array
+     */
+    public $allowedTables = array();    
         
     
     /**
@@ -58,9 +70,16 @@ class PMA extends RestAbstract
      */
     public function hydrateDatabaseProperties()
     {
-        $url                    = $this->url_segments;
+        $url                    = $this->urlSegments;
         $this->database->table  = (!empty($url[0])) ? $url[0] : '';
-        $this->database->id     = (!empty($url[1])) ? $url[1] : '';
+        $table                  = $this->database->table;
+        
+        if (!empty($table)) {
+            if (!empty($this->allowedTables) && !in_array($table, $this->allowedTables)) {
+                echo $this->createJsonMessage('error', 'Forbidden table', 404);
+            } 
+            $this->database->id     = (!empty($url[1])) ? $url[1] : '';
+        } 
     }
     
     /**
@@ -90,6 +109,28 @@ class PMA extends RestAbstract
     }    
     
     /**
+     * Specify http methods to forbid
+     * 
+     * @param  array $methods Http Methods to forbid
+     * @return array
+     */
+    public function forbiddenMethods($methods)
+    {
+        return $this->forbiddenMethods = (array) $methods;
+    }
+    
+    /**
+     * Authorized tables to request
+     * 
+     * @param  array $tables Database tables to request
+     * @return array
+     */
+    public function allowedTables($tables)
+    {
+        return $this->allowedTables = (array) $tables;
+    }    
+    
+    /**
      * handle the rest call
      *
      * @access public
@@ -97,8 +138,28 @@ class PMA extends RestAbstract
     public function rest()
     {
         header('Content-type: application/json');
+        $method = filter_input(INPUT_SERVER, "REQUEST_METHOD");
+        
+        $this->restSwitchCases($method);
 
-        switch (filter_input(INPUT_SERVER, "REQUEST_METHOD")) {
+        if (!empty($this->forbiddenMethods) && 
+                in_array($method, $this->forbiddenMethods)) {
+            echo $this->createJsonMessage('error', 'Forbidden', 404);           
+        } else {
+            $this->database->params = $this->params;
+            return $this->database->doQuery();
+        }
+    }
+    
+    /**
+     * Execute switch cases for rest method
+     * 
+     * @param  string  $method Http method specified
+     * @return boolean
+     */
+    private function restSwitchCases($method)
+    {
+        switch ($method) {
             case 'POST':
                 $this->post();
                 break;
@@ -113,7 +174,6 @@ class PMA extends RestAbstract
                 break;
         }
         
-        $this->database->params = $this->params;
-        return $this->database->doQuery();
-    }    
+        return true;
+    }
 }

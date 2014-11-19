@@ -5,7 +5,7 @@ About
 -----
 
 Php-Mysql-Api "plug-n-play" RESTful API for your MySQL database, including ip addresses access control.
-It provides a REST API that maps directly to your database stucture with no configuration.
+It provides a REST API that maps directly to your database stucture instantly.
 
 This repository is fully tested with CodeCeption.
 
@@ -59,6 +59,16 @@ IP Access control
 To allow access to specific ip addresses, open "ips.ini" file, and fill each ip address after a comma, like this:
 ```
     allowed_ips=127.0.0.1,0.0.0.1
+```
+
+You can also allow some tables to be requested. The necessary line is in "index.php" file.
+```
+$pma->allowedTables(array('test'));
+```
+
+Another good option, you can specify which http method will be forbidden
+```
+$pma->forbiddenMethods(array('GET', 'PUT', 'DELETE'));
 ```
 
 

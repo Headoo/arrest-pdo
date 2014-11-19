@@ -94,9 +94,7 @@ class Database extends DatabaseAbstract
         $values = array();
         $customPk = (isset($this->custom_pk[$this->table])) ? $this->custom_pk[$this->table] : 'id';
         
-        if (!empty($this->id)) {
-            $sql .= " WHERE $customPk=$this->id";
-        }      
+        if (!empty($this->id)) { $sql .= " WHERE $customPk=$this->id"; }      
         if (!empty($this->params['order_by'])) {
             $orderBy = $this->params['order_by'];
             $sql .= " ORDER BY $orderBy";
@@ -122,11 +120,43 @@ class Database extends DatabaseAbstract
      */    
     private function insertQuery()
     {
-        $sql  = "INSERT INTO ".$this->db_configs['database'].".".$this->table . " (";
+        $table  = $this->db_configs['database'].".".$this->table;
+        $sql    = "INSERT INTO " . $table . " (";
         
-        $count  = array('0' => 0, '1' => 0);
+        $selectQuery = "SELECT * FROM $table WHERE ";
+        
         $values = array();
+        $more = $this->buildInsertQuery($values, $sql, $selectQuery);
+        
+        //$more[0] = $values
+        //$more[1] = $sql
+        //$more[2] = $selectQuery
+        
+        $stmt   = $this->pdo->prepare($more[2]);
+        $stmt->execute();
+        $datas = $stmt->fetchAll();
+        
+        if (!empty($datas)) {
+            echo $this->createJsonMessage('error', 'Mysql Security error', 204);            
+        } else {
+           return $this->execute('insert', $more[1], $more[0]);
+        }       
+    }
+    
+    /**
+     * Build insert query
+     * 
+     * @param  array  $values      Parameters values
+     * @param  string $sql         Insert sql
+     * @param  string $selectQuery Select query sql
+     * @return array
+     */
+    private function buildInsertQuery($values, $sql, $selectQuery)
+    {
+        $count  = array('0' => 0, '1' => 0);
+        
         foreach ($this->params as $key => $var) {
+            $var = '';
             if ($key !== 'start_query') {
                 $count[0]++;
                 $sql .= ((count($this->params)-1) === $count[0]) ? "$key":"$key,";
@@ -139,12 +169,16 @@ class Database extends DatabaseAbstract
                 $count[1]++;
                 $sql .= ((count($this->params)-1) === $count[1]) ? ":$k":":$k,";
                 $values[":$k"] = $v;
+                
+                $selectQuery .= ((count($this->params)-1) === $count[1]) ?
+                                "$k='$v'" : "$k='$v' AND ";
             }
         }
+        
         $sql .= ")";
         
-        return $this->execute('insert', $sql, $values);          
-    } 
+        return array($values, $sql, $selectQuery);
+    }
     
     /**
      * Build update query
@@ -153,7 +187,8 @@ class Database extends DatabaseAbstract
      */     
     private function updateQuery()
     {
-        $sql        = "UPDATE ".$this->db_configs['database'].".".$this->table . " SET ";
+        $table      = $this->db_configs['database'].".".$this->table;
+        $sql        = "UPDATE ".$table." SET ";
         $customPk   = (isset($this->custom_pk[$this->table])) ? 
                 $this->custom_pk[$this->table] : 'id';
         
@@ -183,7 +218,8 @@ class Database extends DatabaseAbstract
     {
         $customPk   = (isset($this->custom_pk[$this->table])) ? 
                 $this->custom_pk[$this->table] : 'id';        
-        $sql    = "DELETE FROM ".$this->db_configs['database'].".".$this->table . " WHERE $customPk=:id";
+        $sql    = "DELETE FROM ".$this->db_configs['database'].".".$this->table.
+                " WHERE $customPk=:id";
         $values = array(':id' => $this->id);
         
         return $this->execute('delete', $sql, $values);          
@@ -211,7 +247,8 @@ class Database extends DatabaseAbstract
         
         if (is_bool($data)) {
             if (false === $data) {
-                echo $this->createJsonMessage('error', 'Request error', 204);
+                echo $this->createJsonMessage('error', 'Mysql Request error',
+                        204);
             } else {
                 echo $this->createJsonMessage('success', 'Request done', 200);
             }
