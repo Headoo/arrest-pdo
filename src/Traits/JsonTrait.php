@@ -37,10 +37,13 @@ trait JsonTrait {
      */
     public function createJsonMessage($status, $message, $code)
     {
-        $error = array($status => array(
-            'message' => $message,
-            'code' => $code
-        ));
+        $error = array(
+            'status'  => $status,
+            'content' => array(
+                'message' => $message,
+                'code' => $code
+            )
+        );
         die(json_encode($error));        
     }    
 }
