@@ -134,10 +134,10 @@ class Database extends DatabaseAbstract
         
         $stmt   = $this->pdo->prepare($more[2]);
         $stmt->execute();
-        $datas = $stmt->fetchAll();
-        
+        $datas = $stmt->fetch();
+
         if (!empty($datas)) {
-            echo $this->createJsonMessage('error', 'Mysql Security error', 204);            
+            echo $this->createJsonMessage('error', 'Entry already exists', 204);            
         } else {
            return $this->execute('insert', $more[1], $more[0]);
         }       
@@ -247,7 +247,7 @@ class Database extends DatabaseAbstract
         
         if (is_bool($data)) {
             if (false === $data) {
-                echo $this->createJsonMessage('error', 'Mysql Request error',
+                echo $this->createJsonMessage('error', 'Error during request',
                         204);
             } else {
                 echo $this->createJsonMessage('success', 'Request done', 200);
