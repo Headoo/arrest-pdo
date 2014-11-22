@@ -44,6 +44,6 @@ trait JsonTrait
                 'code' => $code,
             ),
         );
-        die(json_encode($error));
+        return json_encode($error);
     }
 }

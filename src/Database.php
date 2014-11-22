@@ -90,26 +90,29 @@ class Database extends DatabaseAbstract
      */
     private function selectQuery()
     {
-        $sql    = "SELECT * FROM ".$this->db_configs['database'].".".$this->table;
+        $sql    = "SELECT * FROM :table";
         $values = array();
+        $values[':table'] = $this->db_configs['database'].".".$this->table;
         $customPk = (isset($this->custom_pk[$this->table])) ? $this->custom_pk[$this->table] : 'id';
 
         if (!empty($this->id)) {
-            $sql .= " WHERE $customPk=$this->id";
+            $sql .= " WHERE $customPk=:id";
+            $values[':id'] = $this->id;
         }
         if (!empty($this->params['order_by'])) {
-            $orderBy = $this->params['order_by'];
-            $sql .= " ORDER BY $orderBy";
+            $sql .= " ORDER BY :orderby";
+            $values[':orderby'] = $this->params['order_by'];
         }
         if (!empty($this->params['order'])) {
-            $order = strtoupper($this->params['order']);
-            $sql .= " $order";
+            $sql .= " :order";
+            $values[':order'] = $this->params['order'];
         }
         if (!empty($this->params['limit'])) {
-            $limit = intval($this->params['limit']);
-            $sql .= " LIMIT 0,$limit";
+            $sql .= " LIMIT 0,:limitation";
+            $values[':limitation'] = intval($this->params['limit']);
         } else {
-            $sql .= " LIMIT 0,$this->max_queries";
+            $sql .= " LIMIT 0,:limitation";
+            $values[':limitation'] = $this->max_queries;
         }
 
         return $this->execute('select', $sql, $values);
@@ -117,22 +120,21 @@ class Database extends DatabaseAbstract
 
     /**
      * Build insert query
+     *  //$more[0] = $values
+     *  //$more[1] = $sql
+     *  //$more[2] = $selectQuery
      *
      * @return mixed
      */
     private function insertQuery()
     {
-        $table  = $this->db_configs['database'].".".$this->table;
-        $sql    = "INSERT INTO ".$table." (";
+        $sql    = "INSERT INTO :table (";
 
         $selectQuery = "SELECT * FROM $table WHERE ";
 
         $values = array();
+        $values[':table'] = $this->db_configs['database'].".".$this->table;
         $more = $this->buildInsertQuery($values, $sql, $selectQuery);
-
-        //$more[0] = $values
-        //$more[1] = $sql
-        //$more[2] = $selectQuery
 
         $stmt   = $this->pdo->prepare($more[2]);
         $stmt->execute();
@@ -189,13 +191,13 @@ class Database extends DatabaseAbstract
      */
     private function updateQuery()
     {
-        $table      = $this->db_configs['database'].".".$this->table;
-        $sql        = "UPDATE ".$table." SET ";
+        $sql        = "UPDATE :table SET ";
         $customPk   = (isset($this->custom_pk[$this->table])) ?
                 $this->custom_pk[$this->table] : 'id';
 
         $count  = 0;
         $values = array();
+        $values[':table'] = $this->db_configs['database'].".".$this->table;
         foreach ($this->params as $key => $var) {
             if ($key !== 'start_query') {
                 $count++;
@@ -220,9 +222,9 @@ class Database extends DatabaseAbstract
     {
         $customPk   = (isset($this->custom_pk[$this->table])) ?
                 $this->custom_pk[$this->table] : 'id';
-        $sql    = "DELETE FROM ".$this->db_configs['database'].".".$this->table.
-                " WHERE $customPk=:id";
-        $values = array(':id' => $this->id);
+        $table  = $this->db_configs['database'].".".$this->table;
+        $sql    = "DELETE FROM :table WHERE $customPk=:id";
+        $values = array(':table' => $table, ':id' => $this->id);
 
         return $this->execute('delete', $sql, $values);
     }

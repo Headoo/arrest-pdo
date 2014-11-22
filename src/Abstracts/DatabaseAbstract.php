@@ -85,16 +85,15 @@ abstract class DatabaseAbstract implements DatabaseInterface
      */
     public function connect()
     {
-        try {
-            $database   = $this->db_configs['database'];
-            $server     = $this->db_configs['server'];
-            $username   = $this->db_configs['username'];
-            $password   = $this->db_configs['password'];
-            $dns        = "mysql:host=$server;dbname=$database";
-            $this->pdo  = new PDO($dns, $username, $password);
-        } catch (Exception $e) {
-            echo "Connection à MySQL impossible : ", $e->getMessage();
-            die();
+        $database   = $this->db_configs['database'];
+        $server     = $this->db_configs['server'];
+        $username   = $this->db_configs['username'];
+        $password   = $this->db_configs['password'];
+        $dns        = "mysql:host=$server;dbname=$database";
+        $this->pdo  = new PDO($dns, $username, $password);
+
+        if (!is_object($this->pdo)) {
+            throw new Exception("unable to connect to database");
         }
     }
 
