@@ -9,7 +9,7 @@ It provides a REST API that maps directly to your database structure instantly.
 
 This repository is fully tested with CodeCeption and respect PSR coding standards.
 
-![Sensiolabs Insight]((https://insight.sensiolabs.com/projects/8e837109-602d-4fa1-b83a-8778aa19fc8f/big.png)
+![Image]((https://insight.sensiolabs.com/projects/8e837109-602d-4fa1-b83a-8778aa19fc8f/big.png?raw=true)
 
 
 Requirements
