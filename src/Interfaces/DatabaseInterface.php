@@ -24,22 +24,22 @@ namespace src\Interfaces;
  * @license  http://www.opensource.org/licenses/mit-license.php MIT License
  * @link     http://creativcoders.wordpress.com
  */
-interface DatabaseInterface {
-
+interface DatabaseInterface
+{
     /**
      * Parse database config method
-     * 
+     *
      * @param string $file
      */
     public function parseDatabaseConfig($file);
-    
+
     /**
-     * Connect method 
+     * Connect method
      */
     public function connect();
-    
+
     /**
      * Map method
      */
-    public function mapDatabase();   
+    public function mapDatabase();
 }

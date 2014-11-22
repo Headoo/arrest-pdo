@@ -9,19 +9,19 @@ require "src/Abstracts/RestAbstract.php";
 require "src/Database.php";
 require "src/PMA.php";
 
-$directory = __DIR__ . DIRECTORY_SEPARATOR;
+$directory = __DIR__.DIRECTORY_SEPARATOR;
 
-$database   = new \src\Database($directory . 'database.ini');
+$database   = new \src\Database($directory.'database.ini');
 $database->connect();
-//$database->setCustomPkFieldsPerTable(array('test' => 'testid'));
+$database->setCustomPkFieldsPerTable(array());
 $database->mapDatabase();
 $database->max_queries = 10;
 
-$pma        = new \src\PMA($database, $directory . 'ips.ini');
+$pma        = new \src\PMA($database, $directory.'ips.ini');
 $pma->getUrlSegments();
 $pma->getUrlParams();
-//$pma->allowedTables(array('test'));
-//$pma->forbiddenMethods(array('GET', 'PUT', 'DELETE'));
+$pma->allowedTables(array('test'));
+$pma->forbiddenMethods(array());
 $pma->hydrateDatabaseProperties();
 $pma->authentifyRequest();
 $pma->rest();

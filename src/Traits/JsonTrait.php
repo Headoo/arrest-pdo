@@ -24,15 +24,15 @@ namespace src\Traits;
  * @license  http://www.opensource.org/licenses/mit-license.php MIT License
  * @link     http://creativcoders.wordpress.com
  */
-trait JsonTrait {
-    
+trait JsonTrait
+{
     /**
      * Return json errors
-     * 
+     *
      * @param string  $status  Json Status return
      * @param string  $message Message returned in Json
      * @param integer $code    Http status code
-     * 
+     *
      * @access protected
      */
     public function createJsonMessage($status, $message, $code)
@@ -41,10 +41,9 @@ trait JsonTrait {
             'status'  => $status,
             'content' => array(
                 'message' => $message,
-                'code' => $code
-            )
+                'code' => $code,
+            ),
         );
-        die(json_encode($error));        
-    }    
+        die(json_encode($error));
+    }
 }
-

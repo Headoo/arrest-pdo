@@ -24,40 +24,40 @@ namespace src\Interfaces;
  * @license  http://www.opensource.org/licenses/mit-license.php MIT License
  * @link     http://creativcoders.wordpress.com
  */
-interface RestInterface 
+interface RestInterface
 {
     /**
      * Get url segments
-     * 
-     * @param string $baseUri
+     *
+     * @param  string $baseUri
      * @return array
      */
     public function getUrlSegments($baseUri = "index.php");
-    
+
     /**
      * Get url segments
-     * 
+     *
      * @return mixed
      */
-    public function getUrlparams();    
-    
+    public function getUrlparams();
+
     /**
-     * Post method 
+     * Post method
      */
     public function post();
-    
+
     /**
      * Get method
      */
     public function get();
-    
+
     /**
      * Put method
      */
     public function put();
-    
+
     /**
      * Delete method
      */
-    public function delete();    
+    public function delete();
 }
