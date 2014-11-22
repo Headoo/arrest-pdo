@@ -5,9 +5,11 @@ About
 -----
 
 Php-Mysql-Api "plug-n-play" RESTful API for your MySQL database, including ip addresses access control.
-It provides a REST API that maps directly to your database stucture instantly.
+It provides a REST API that maps directly to your database structure instantly.
 
-This repository is fully tested with CodeCeption.
+This repository is fully tested with CodeCeption and respect PSR coding standards.
+
+![Sensiolabs Insight]((https://insight.sensiolabs.com/projects/8e837109-602d-4fa1-b83a-8778aa19fc8f/big.png)
 
 
 Requirements
