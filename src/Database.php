@@ -130,7 +130,7 @@ class Database extends DatabaseAbstract
     {
         $sql    = "INSERT INTO :table (";
 
-        $selectQuery = "SELECT * FROM $table WHERE ";
+        $selectQuery = "SELECT * FROM :table WHERE ";
 
         $values = array();
         $values[':table'] = $this->db_configs['database'].".".$this->table;

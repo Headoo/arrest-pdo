@@ -9,7 +9,7 @@ modules:
     enabled: [Db, PhpBrowser, AcceptanceHelper]
     config:
         PhpBrowser:
-            url: 'http://localhost/'
+            url: 'http://localhost/index.php/'
         Db:
             dsn: 'mysql:host=localhost;dbname=test'
             user: 'root'

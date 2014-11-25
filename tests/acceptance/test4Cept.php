@@ -1,7 +1,7 @@
 <?php
 $I = new AcceptanceTester($scenario);
 $I->wantTo('check that delete api works');
-$linkDelete = 'http://localhost/test/1';
+$linkDelete = 'http://localhost/index.php/test/1';
 $postfieldsPut = array(
     'username' => 'florilege_edit',
     'email' => 'florilege_edit@hotmail.fr',
