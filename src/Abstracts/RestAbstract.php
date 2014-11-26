@@ -28,12 +28,14 @@ abstract class RestAbstract implements RestInterface
      */
     public $params = array();
 
+
     /**
      * Get url segments
      * If url doesn't match "/table/id" format, generate json error
      *
      * @param  string        $baseUri
      * @return array|boolean
+     * @throws Exception
      */
     public function getUrlSegments($baseUri = 'index.php')
     {
@@ -49,8 +51,8 @@ abstract class RestAbstract implements RestInterface
                 $result = (array) $this->urlSegments = $segments;
             }
         } else {
-            $this->createJsonMessage('error', 'Wrong url api', 404);
-            $result = false;
+            throw new Exception($this->createJsonMessage('error', 
+                    'Wrong url api', 404));
         }
 
         return $result;

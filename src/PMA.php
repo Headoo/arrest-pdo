@@ -16,6 +16,7 @@
 namespace src;
 
 use src\Abstracts\RestAbstract;
+use \Exception;
 
 /**
  * PMA Controller
@@ -67,6 +68,12 @@ class PMA extends RestAbstract
     /**
      * Hydrate database properties (table and id)
      */
+    
+    /**
+     * Hydrate database properties (table and id)
+     * 
+     * @throws Exception
+     */
     public function hydrateDatabaseProperties()
     {
         $url                    = $this->urlSegments;
@@ -74,8 +81,10 @@ class PMA extends RestAbstract
         $table                  = $this->database->table;
 
         if (!empty($table)) {
-            if (!empty($this->allowedTables) && !in_array($table, $this->allowedTables)) {
-                throw new \Exception($this->createJsonMessage('error', 'Forbidden table', 404));
+            if (!empty($this->allowedTables) 
+                    && !in_array($table, $this->allowedTables)) {
+                throw new Exception($this->createJsonMessage('error',
+                        'Forbidden table', 404));
             }
             $this->database->id     = (!empty($url[1])) ? $url[1] : '';
         }
@@ -83,8 +92,8 @@ class PMA extends RestAbstract
 
     /**
      * Dispatch all values to different properties
-     *
-     * @access protected
+     * 
+     * @throws Exception
      */
     public function authentifyRequest()
     {
@@ -103,7 +112,8 @@ class PMA extends RestAbstract
         }
 
         if (!in_array($ip, $ipsArray)) {
-            return $this->createJsonMessage('error', 'Not authorized', 404);
+            throw new Exception($this->createJsonMessage('error', 
+                    'Not authorized http request', 404));
         }
     }
 
@@ -129,10 +139,12 @@ class PMA extends RestAbstract
         return $this->allowedTables = (array) $tables;
     }
 
+    
     /**
      * handle the rest call
-     *
-     * @access public
+     * 
+     * @return mixed
+     * @throws Exception
      */
     public function rest()
     {
@@ -143,7 +155,8 @@ class PMA extends RestAbstract
 
         if (!empty($this->forbiddenMethods) &&
                 in_array($method, $this->forbiddenMethods)) {
-            echo $this->createJsonMessage('error', 'Forbidden', 404);
+            throw new Exception($this->createJsonMessage('error', 
+                    'Forbidden http method', 404));
         } else {
             $this->database->params = $this->params;
 

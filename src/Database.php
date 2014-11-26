@@ -47,7 +47,7 @@ class Database extends DatabaseAbstract
      *
      * @var string
      */
-    public $cleanTable;    
+    public $clean_table;    
 
     /**
      * Constructor
@@ -67,7 +67,7 @@ class Database extends DatabaseAbstract
     public function doQuery()
     {
         $table = $this->db_configs['database'].".".$this->table;
-        $this->cleanTable = str_replace("'", "", $this->pdo->quote($table));
+        $this->clean_table = str_replace("'", "", $this->pdo->quote($table));
         
         if ($this->params['start_query'] === 'select') {
             $result = $this->selectQuery();
@@ -100,7 +100,7 @@ class Database extends DatabaseAbstract
      */
     private function selectQuery()
     {
-        $sql    = "SELECT * FROM $this->cleanTable";
+        $sql    = "SELECT * FROM $this->clean_table";
         $values = array();
         $customPk = (isset($this->custom_pk[$this->table])) ? 
                 $this->custom_pk[$this->table] : 'id';
@@ -137,11 +137,12 @@ class Database extends DatabaseAbstract
      *  //$more[2] = $selectQuery
      *
      * @return mixed
+     * @throws Exception
      */
     private function insertQuery()
     {
-        $sql    = "INSERT INTO $this->cleanTable (";
-        $selectQuery = "SELECT * FROM $this->cleanTable WHERE ";
+        $sql    = "INSERT INTO $this->clean_table (";
+        $selectQuery = "SELECT * FROM $this->clean_table WHERE ";
 
         $more = $this->buildInsertQuery(array(), $sql, $selectQuery);
         $values = $more[0];
@@ -154,7 +155,8 @@ class Database extends DatabaseAbstract
         $datas = $stmt->fetch();
         
         if (!empty($datas)) {
-            echo $this->createJsonMessage('error', 'Entry already exists', 204);
+            throw new Exception($this->createJsonMessage('error', 
+                    'Entry already exists', 204));
         } else {
             return $this->execute('insert', $more[1], $more[0]);
         }
@@ -204,7 +206,7 @@ class Database extends DatabaseAbstract
      */
     private function updateQuery()
     {
-        $sql        = "UPDATE $this->cleanTable SET ";
+        $sql        = "UPDATE $this->clean_table SET ";
         $customPk   = (isset($this->custom_pk[$this->table])) ?
                 $this->custom_pk[$this->table] : 'id';
 
@@ -234,18 +236,20 @@ class Database extends DatabaseAbstract
     {
         $customPk   = (isset($this->custom_pk[$this->table])) ?
                 $this->custom_pk[$this->table] : 'id';
-        $sql    = "DELETE FROM $this->cleanTable WHERE $customPk=:id";
+        $sql    = "DELETE FROM $this->clean_table WHERE $customPk=:id";
         $values = array(':id' => $this->id);
 
         return $this->execute('delete', $sql, $values);
     }
 
+
     /**
      * Execute query
      *
-     * @param string $type   Request type (select, insert, update, delete)
-     * @param string $sql    Prepared statement
-     * @param array  $values Values to attach to the request
+     * @param  string    $type   Request type (select, insert, update, delete)
+     * @param  string    $sql    Prepared statement
+     * @param  array     $values Values to attach to the request
+     * @throws Exception
      */
     private function execute($type, $sql, $values)
     {
@@ -263,10 +267,11 @@ class Database extends DatabaseAbstract
 
         if (is_bool($data)) {
             if (false === $data) {
-                echo $this->createJsonMessage('error', 'Error during request',
-                        204);
+                throw new Exception($this->createJsonMessage('error', 
+                        'Error during final request',204));
             } else {
-                echo $this->createJsonMessage('success', 'Request done', 200);
+                throw new Exception($this->createJsonMessage('success', 
+                        'Request successfully done', 200));
             }
         } else {
             echo json_encode($data);
