@@ -16,6 +16,7 @@
 namespace src;
 
 use src\Abstracts\DatabaseAbstract;
+use \PDO;
 
 /**
  * Database Controller
@@ -41,6 +42,12 @@ class Database extends DatabaseAbstract
      * @var array
      */
     public $custom_pk = array();
+    
+    /**
+     *
+     * @var string
+     */
+    public $cleanTable;    
 
     /**
      * Constructor
@@ -59,6 +66,9 @@ class Database extends DatabaseAbstract
      */
     public function doQuery()
     {
+        $table = $this->db_configs['database'].".".$this->table;
+        $this->cleanTable = str_replace("'", "", $this->pdo->quote($table));
+        
         if ($this->params['start_query'] === 'select') {
             $result = $this->selectQuery();
         } elseif ($this->params['start_query'] === 'insert') {
@@ -90,9 +100,8 @@ class Database extends DatabaseAbstract
      */
     private function selectQuery()
     {
-        $sql    = "SELECT * FROM :table";
+        $sql    = "SELECT * FROM $this->cleanTable";
         $values = array();
-        $values[':table'] = $this->db_configs['database'].".".$this->table;
         $customPk = (isset($this->custom_pk[$this->table])) ? $this->custom_pk[$this->table] : 'id';
 
         if (!empty($this->id)) {
@@ -100,19 +109,21 @@ class Database extends DatabaseAbstract
             $values[':id'] = $this->id;
         }
         if (!empty($this->params['order_by'])) {
-            $sql .= " ORDER BY :orderby";
-            $values[':orderby'] = $this->params['order_by'];
+            $orderBy = str_replace("'","",
+                    $this->pdo->quote($this->params['order_by']));
+            $sql .= " ORDER BY $orderBy";
         }
         if (!empty($this->params['order'])) {
-            $sql .= " :order";
-            $values[':order'] = $this->params['order'];
+            $order = str_replace("'","",
+                    $this->pdo->quote($this->params['order']));
+            $sql .= " $order";
         }
         if (!empty($this->params['limit'])) {
-            $sql .= " LIMIT 0,:limitation";
-            $values[':limitation'] = intval($this->params['limit']);
+            $sql .= " LIMIT 0,:limit";
+            $values[':limit'] = intval($this->params['limit']);
         } else {
-            $sql .= " LIMIT 0,:limitation";
-            $values[':limitation'] = $this->max_queries;
+            $sql .= " LIMIT 0,:limit";
+            $values[':limit'] = $this->max_queries;
         }
 
         return $this->execute('select', $sql, $values);
@@ -128,18 +139,19 @@ class Database extends DatabaseAbstract
      */
     private function insertQuery()
     {
-        $sql    = "INSERT INTO :table (";
+        $sql    = "INSERT INTO $this->cleanTable (";
+        $selectQuery = "SELECT * FROM $this->cleanTable WHERE ";
 
-        $selectQuery = "SELECT * FROM :table WHERE ";
-
-        $values = array();
-        $values[':table'] = $this->db_configs['database'].".".$this->table;
-        $more = $this->buildInsertQuery($values, $sql, $selectQuery);
-
+        $more = $this->buildInsertQuery(array(), $sql, $selectQuery);
+        $values = $more[0];
+        
         $stmt   = $this->pdo->prepare($more[2]);
+        foreach ($values as $key => $val) {
+            $stmt->bindValue($key, $val);
+        }
         $stmt->execute();
         $datas = $stmt->fetch();
-
+        
         if (!empty($datas)) {
             echo $this->createJsonMessage('error', 'Entry already exists', 204);
         } else {
@@ -163,7 +175,7 @@ class Database extends DatabaseAbstract
             $var = '';
             if ($key !== 'start_query') {
                 $count[0]++;
-                $sql .= ((count($this->params)-1) === $count[0]) ? "$key" : "$key,";
+                $sql .= ((count($this->params)-1) === $count[0])?"$key":"$key,";
             }
         }
         $sql .= ") VALUES (";
@@ -171,11 +183,11 @@ class Database extends DatabaseAbstract
         foreach ($this->params as $k => $v) {
             if ($k !== 'start_query') {
                 $count[1]++;
-                $sql .= ((count($this->params)-1) === $count[1]) ? ":$k" : ":$k,";
+                $sql .= ((count($this->params)-1) === $count[1])?":$k":":$k,";
                 $values[":$k"] = $v;
 
                 $selectQuery .= ((count($this->params)-1) === $count[1]) ?
-                                "$k='$v'" : "$k='$v' AND ";
+                                "$k=:$k" : "$k=:$k AND ";
             }
         }
 
@@ -191,13 +203,12 @@ class Database extends DatabaseAbstract
      */
     private function updateQuery()
     {
-        $sql        = "UPDATE :table SET ";
+        $sql        = "UPDATE $this->cleanTable SET ";
         $customPk   = (isset($this->custom_pk[$this->table])) ?
                 $this->custom_pk[$this->table] : 'id';
 
         $count  = 0;
         $values = array();
-        $values[':table'] = $this->db_configs['database'].".".$this->table;
         foreach ($this->params as $key => $var) {
             if ($key !== 'start_query') {
                 $count++;
@@ -222,9 +233,8 @@ class Database extends DatabaseAbstract
     {
         $customPk   = (isset($this->custom_pk[$this->table])) ?
                 $this->custom_pk[$this->table] : 'id';
-        $table  = $this->db_configs['database'].".".$this->table;
-        $sql    = "DELETE FROM :table WHERE $customPk=:id";
-        $values = array(':table' => $table, ':id' => $this->id);
+        $sql    = "DELETE FROM $this->cleanTable WHERE $customPk=:id";
+        $values = array(':id' => $this->id);
 
         return $this->execute('delete', $sql, $values);
     }
@@ -241,7 +251,8 @@ class Database extends DatabaseAbstract
         $stmt   = $this->pdo->prepare($sql);
 
         foreach ($values as $key => $val) {
-            $stmt->bindValue($key, $val);
+            $param = (($key===':limit')) ? PDO::PARAM_INT : PDO::PARAM_STR; 
+            $stmt->bindValue($key, $val, $param);
         }
         $data   = $stmt->execute();
 
