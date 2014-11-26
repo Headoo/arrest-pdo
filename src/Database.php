@@ -111,11 +111,11 @@ class Database extends DatabaseAbstract
     private function selectQuery()
     {
         $sql    = "SELECT * FROM $this->clean_table";
-        $values = array();
-
+        $values = array();        
+        
         if (!empty($this->id)) {
             $sql .= " WHERE $this->primary_key=:id";
-            $values[':id'] = $this->id;
+            $values[':id'] = $this->id;           
         }
         if (!empty($this->params['order_by'])) {
             $orderBy = str_replace("'","",
@@ -261,7 +261,8 @@ class Database extends DatabaseAbstract
         $stmt   = $this->pdo->prepare($sql);
 
         foreach ($values as $key => $val) {
-            $param = (($key===':limit')) ? PDO::PARAM_INT : PDO::PARAM_STR; 
+            $param = (($key===':limit') || ($key===':id')) ? 
+                    PDO::PARAM_INT : PDO::PARAM_STR; 
             $stmt->bindValue($key, $val, $param);
         }
         $data   = $stmt->execute();
@@ -287,10 +288,10 @@ class Database extends DatabaseAbstract
             }
             if (false === $data) {
                 throw new Exception($this->createJsonMessage('error', 
-                        'Error during final request',204));
+                        'No result found or bad request!',204));
             } else {
                 throw new Exception($this->createJsonMessage('success', 
-                        'Request successfully done', 200));
+                        'Request successfully done!', 200));
             }
            
         } catch (Exception $e) {

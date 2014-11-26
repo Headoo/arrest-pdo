@@ -10,7 +10,7 @@ require "../src/Database.php";
 require "../src/PMA.php";
 
 $directory = __DIR__.DIRECTORY_SEPARATOR . ".." . DIRECTORY_SEPARATOR . "app" . 
-    DIRECTORY_SEPARATOR."prod".DIRECTORY_SEPARATOR."conf".DIRECTORY_SEPARATOR;
+    DIRECTORY_SEPARATOR."test".DIRECTORY_SEPARATOR."conf".DIRECTORY_SEPARATOR;
 
 $database   = new \src\Database($directory.'database.ini');
 $database->connect();
@@ -19,7 +19,7 @@ $database->mapDatabase();
 $database->max_queries = 10;
 
 $pma        = new \src\PMA($database, $directory.'ips.ini');
-$pma->getUrlSegments();
+$pma->getUrlSegments('test.php');
 $pma->getUrlParams();
 $pma->allowedTables(array('test'));
 $pma->forbiddenMethods(array());

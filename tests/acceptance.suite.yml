@@ -6,10 +6,12 @@
 
 class_name: AcceptanceTester
 modules:
-    enabled: [Db, PhpBrowser, AcceptanceHelper]
+    enabled: [Db, PhpBrowser, AcceptanceHelper, REST]
     config:
         PhpBrowser:
-            url: 'http://localhost/index.php/'
+            url: 'http://localhost/test.php/'
+        REST:
+            url: 'http://localhost/test.php/'            
         Db:
             dsn: 'mysql:host=localhost;dbname=test'
             user: 'root'
