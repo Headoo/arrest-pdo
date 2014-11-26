@@ -75,7 +75,7 @@ class PMA extends RestAbstract
 
         if (!empty($table)) {
             if (!empty($this->allowedTables) && !in_array($table, $this->allowedTables)) {
-                echo $this->createJsonMessage('error', 'Forbidden table', 404);
+                throw new \Exception($this->createJsonMessage('error', 'Forbidden table', 404));
             }
             $this->database->id     = (!empty($url[1])) ? $url[1] : '';
         }
