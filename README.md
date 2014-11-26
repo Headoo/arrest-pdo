@@ -4,8 +4,9 @@ PHP MYSQL API
 About
 -----
 
-Php-Mysql-Api "plug-n-play" RESTful API for your MySQL database, including ip addresses access control.
+Php-Mysql-Api "plug-n-play" and secure RESTful API for your MySQL database, including ip, http methods and tables access control.
 It provides a REST API that maps directly to your database structure instantly.
+it comes with a 'prod' and 'test' environment for rapid and reliable deployments on your server.
 
 This repository is fully tested with CodeCeption and respect PSR coding standards.
 
@@ -21,71 +22,103 @@ Require PHP version 5.4 or greater and Mysql 5 or greater.
 Installation
 ------------
 
-Simply put these files into a folder somewhere on your server. Then edit "database.ini", "ips.ini" and fill in your database details, allowed ip addresses and you are good to go.
+1. Put Php-mysql-api on your server and target Apache root directory to the web folder.
+2. Apply chmod 0755 to all of your directory.
+3. Create an empty database "test" 
+4. In the "test" database, create a "test" table
+5. In the "test" table, add these specific columns (id, username, email).
+
+
+Configuration
+-------------
+
+The configuration is done in three quick steps, you have to configure the database and ip configuration for prod and test environments.
+
+1. PROD environment:
+```
+    - Open "app/prod/conf/database.ini", and fill in your informations.
+    - Open "app/prod/conf/ips.ini", and fill in authorized ip (separated by comma) for prod environment.
+```
+
+2. TEST environment:
+```
+    - Open "app/test/conf/database.ini", and fill in your informations.
+    - Open "app/test/conf/ips.ini", and fill in authorized ip (separated by comma) for test environment.
+```
+
+3. Codeception test configuration for acceptance testing:
+```
+    - Open "tests/acceptance.suite.yml", and fill in your informations.
+        * If you're using a specific port for your url, add the specific port for "PhpBrowser url and REST url".
+        * Set login and password of your database
+```
+
 
 
 Run acceptance Tests with CodeCeption
 -------------------------------------
 
-1. Create new database and new table. Name each of them "test".
+Before anything, you will have to test the correct execution of Php-mysql-api in your environment.
+For that, you will have to run acceptance tests written with codeception.
 
-2. Inside "test" table, add 3 columns (id, username, email).
+Open your console line command, and type
 
-3. Open "tests/acceptance.suite.yml" and fill in the correct parameters to connect to your database (Be sure to specify ports if needed).
 ```
-    modules:
-        enabled: [Db, PhpBrowser, AcceptanceHelper]
-            config:
-                PhpBrowser:
-                    url: 'http://localhost/' #If port != 80, use 'http://localhost:myport'
-                Db:
-                    dsn: 'mysql:host=localhost;dbname=test' #If port != 80, use 'mysql:host=localhost:myport;dbname=test'
-                    user: 'root'
-                    password: ''
-                    dump: 'tests/_data/dump.sql'
-                    populate: true
-                    cleanup: false
+    cd php-mysql-api
+    php codecept.phar run
 ```     
 
-4. if you're using a different port than 80, please specify it in "tests/acceptance/test*Cept.php"
+it will test for POST, GET, PUT and DELETE methods in the "test" table, and must return "OK" to the four tests.
 
-5. Open your console and run
-```php codecept.phar run```
-
-NB: When you're testing, be sure that "database.ini" configurations match codeception database parameters.
-
-
-IP Access control
-------------------
-
-To allow access to specific ip addresses, open "ips.ini" file, and fill each ip address after a comma, like this:
+NB: If any error occured:
+1. Try to download again the codecept.phar library
+``` 
+    wget http://codeception.com/codecept.phar .
+    OR
+    http://codeception.com/thanks
 ```
+2. Restart all the previous steps.
+
+
+
+Access control
+--------------
+
+Php-mysql-api provides IP access control, but can do further. Let's see this.
+
+For ip access control:
+```
+    In "app/{environment}/conf/ips.ini", you can specify any ip addresses you want, other ip addresses will be rejected
     allowed_ips=127.0.0.1,0.0.0.1
 ```
 
-You can also allow some tables to be requested. The necessary line is in "index.php" file.
+You can also allow access to specific tables of your database, so you can keep sensistive datas saved.
 ```
-$pma->allowedTables(array('test'));
-```
-
-Another good option, you can specify which http method will be forbidden
-```
-$pma->forbiddenMethods(array('GET', 'PUT', 'DELETE'));
+    In "web/index.php" file
+    $pma->allowedTables(array('test')); //add any tables you want to be accessible from the api
 ```
 
-
-Change database configs
------------------------
-
-When you have finished with tests, you can change database configurations.
-Open "database.ini" file, and fill each ip address after a comma, like this:
+Another good access control concerns Http methods.
+Maybe you just need to Insert datas in your tables, and don't want anyone to GET, PUT or DELETE on it.
+You are free to specify forbidden Http Methods, just like this:
 ```
-    server=localhost
-    database=MYDATABASE
-    username=root
-    password=
-    verbose=false
+    In "web/index.php" file
+    $pma->forbiddenMethods(array('GET', 'PUT', 'DELETE'));
 ```
+
+
+Tables with specific primary keys
+---------------------------------
+
+By convention, a table primary key is called "id", but some tables may have a different name.
+
+Php-mysql-api helps you to easily specify these use cases.
+
+Open "web/index.php", and specify in an associative array, the table and its primary key.
+```
+    $database->setCustomPkFieldsPerTable(array('test' => 'testid'));
+```
+
 
 
 MORE Documentation
@@ -140,8 +173,9 @@ Successful POST, PUT, and DELETE responses will look like
 
 ```json
 {
-    "success": {
-        "message": "Success",
+    "status": "success",
+    "content": {
+        "message": "Request successfully done!",
         "code": 200
     }
 }
@@ -151,8 +185,9 @@ Errors are in the format:
 
 ```json
 {
-    "error": {
-        "message": "No Content",
+    "status": "error",
+    "content": {
+        "message": "No result found or bad request!",
         "code": 204
     }
 }
@@ -165,14 +200,6 @@ The following codes and message are avaiable:
 * 404 Not Found
 
 
-By default, primary key fields are nammed "id", when you have tables with a different name than "id", you can customize them in index.php file, like this.
-```
-    $database   = new \src\Database($directory . 'database.ini');
-    $database->connect();
-    $database->setCustomPkFieldsPerTable(array(TABLE => PK));
-    $database->mapDatabase();
-    $database->max_queries = 10;
-``` 
 
 
 Contributing
@@ -185,6 +212,6 @@ If you want to help me improve this bundle, please make sure it conforms to the 
 Issues
 ------
 
-Bug reports and feature requests can be submitted on the [Github issues tracker](https://github.com/headoo/php-mysql-api/issues).
+Bug reports and feature requests can be submitted on the [Github issues tracker](https://github.com/Headoo/php-mysql-api/issues).
 
 For further informations, contact me directly at edouard.kombo@gmail.com or tech@headoo.com.
