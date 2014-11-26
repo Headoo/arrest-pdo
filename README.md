@@ -34,19 +34,19 @@ Configuration
 
 The configuration is done in three quick steps, you have to configure the database and ip configuration for prod and test environments.
 
-1. PROD environment:
+- PROD environment:
 ```
     - Open "app/prod/conf/database.ini", and fill in your informations.
     - Open "app/prod/conf/ips.ini", and fill in authorized ip (separated by comma) for prod environment.
 ```
 
-2. TEST environment:
+- TEST environment:
 ```
     - Open "app/test/conf/database.ini", and fill in your informations.
     - Open "app/test/conf/ips.ini", and fill in authorized ip (separated by comma) for test environment.
 ```
 
-3. Codeception test configuration for acceptance testing:
+- Codeception test configuration for acceptance testing:
 ```
     - Open "tests/acceptance.suite.yml", and fill in your informations.
         * If you're using a specific port for your url, add the specific port for "PhpBrowser url and REST url".
@@ -61,23 +61,24 @@ Run acceptance Tests with CodeCeption
 Before anything, you will have to test the correct execution of Php-mysql-api in your environment.
 For that, you will have to run acceptance tests written with codeception.
 
-Open your console line command, and type
+Open your console line command at your root project and type
 
 ```
-    cd php-mysql-api
     php codecept.phar run
 ```     
 
-it will test for POST, GET, PUT and DELETE methods in the "test" table, and must return "OK" to the four tests.
+It will test for POST, GET, PUT and DELETE methods in the "test" table, and must return "OK" to the four tests.
 
 NB: If any error occured:
-1. Try to download again the codecept.phar library
+
+- Try to download again the codecept.phar library
 ``` 
     wget http://codeception.com/codecept.phar .
     OR
     http://codeception.com/thanks
 ```
-2. Restart all the previous steps.
+
+- Restart all the previous steps.
 
 
 
@@ -86,23 +87,20 @@ Access control
 
 Php-mysql-api provides IP access control, but can do further. Let's see this.
 
-For ip access control:
+For ip access control, in "app/{environment}/conf/ips.ini", you can specify any ip addresses you want, other ip addresses will be rejected.
 ```
-    In "app/{environment}/conf/ips.ini", you can specify any ip addresses you want, other ip addresses will be rejected
     allowed_ips=127.0.0.1,0.0.0.1
 ```
 
-You can also allow access to specific tables of your database, so you can keep sensistive datas saved.
+You can also allow access to specific tables of your database, so you can keep sensistive datas saved. open "web/index.php" file.
 ```
-    In "web/index.php" file
     $pma->allowedTables(array('test')); //add any tables you want to be accessible from the api
 ```
 
 Another good access control concerns Http methods.
 Maybe you just need to Insert datas in your tables, and don't want anyone to GET, PUT or DELETE on it.
-You are free to specify forbidden Http Methods, just like this:
+You are free to specify forbidden Http Methods. Open "web/index.php" file.
 ```
-    In "web/index.php" file
     $pma->forbiddenMethods(array('GET', 'PUT', 'DELETE'));
 ```
 
