@@ -23,7 +23,7 @@ Installation
 ------------
 
 1. Put Php-mysql-api on your server and target Apache root directory to the web folder.
-2. Apply chmod 0755 to all of your directory.
+2. Apply chmod 0755 to all the project.
 3. Create an empty database "test" 
 4. In the "test" database, create a "test" table
 5. In the "test" table, add these specific columns (id, username, email).
@@ -78,7 +78,7 @@ NB: If any error occured:
     http://codeception.com/thanks
 ```
 
-- Restart all the previous steps.
+- Repeat all the previous steps.
 
 
 
