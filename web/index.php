@@ -9,7 +9,8 @@ require "../src/Abstracts/RestAbstract.php";
 require "../src/Database.php";
 require "../src/PMA.php";
 
-$directory = __DIR__.DIRECTORY_SEPARATOR . ".." . DIRECTORY_SEPARATOR . "app" . DIRECTORY_SEPARATOR . "conf" . DIRECTORY_SEPARATOR;
+$directory = __DIR__.DIRECTORY_SEPARATOR . ".." . DIRECTORY_SEPARATOR . "app" . 
+        DIRECTORY_SEPARATOR . "conf" . DIRECTORY_SEPARATOR;
 
 $database   = new \src\Database($directory.'database.ini');
 $database->connect();

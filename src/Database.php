@@ -102,7 +102,8 @@ class Database extends DatabaseAbstract
     {
         $sql    = "SELECT * FROM $this->cleanTable";
         $values = array();
-        $customPk = (isset($this->custom_pk[$this->table])) ? $this->custom_pk[$this->table] : 'id';
+        $customPk = (isset($this->custom_pk[$this->table])) ? 
+                $this->custom_pk[$this->table] : 'id';
 
         if (!empty($this->id)) {
             $sql .= " WHERE $customPk=:id";
