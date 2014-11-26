@@ -17,6 +17,7 @@ namespace src;
 
 use src\Abstracts\DatabaseAbstract;
 use \PDO;
+use \Exception;
 
 /**
  * Database Controller
@@ -47,6 +48,12 @@ class Database extends DatabaseAbstract
      *
      * @var string
      */
+    public $primary_key;    
+    
+    /**
+     *
+     * @var string
+     */
     public $clean_table;    
 
     /**
@@ -68,6 +75,9 @@ class Database extends DatabaseAbstract
     {
         $table = $this->db_configs['database'].".".$this->table;
         $this->clean_table = str_replace("'", "", $this->pdo->quote($table));
+
+        $this->primary_key = (isset($this->custom_pk[$this->table])) ? 
+                $this->custom_pk[$this->table] : 'id';        
         
         if ($this->params['start_query'] === 'select') {
             $result = $this->selectQuery();
@@ -102,11 +112,9 @@ class Database extends DatabaseAbstract
     {
         $sql    = "SELECT * FROM $this->clean_table";
         $values = array();
-        $customPk = (isset($this->custom_pk[$this->table])) ? 
-                $this->custom_pk[$this->table] : 'id';
 
         if (!empty($this->id)) {
-            $sql .= " WHERE $customPk=:id";
+            $sql .= " WHERE $this->primary_key=:id";
             $values[':id'] = $this->id;
         }
         if (!empty($this->params['order_by'])) {
@@ -119,13 +127,10 @@ class Database extends DatabaseAbstract
                     $this->pdo->quote($this->params['order']));
             $sql .= " $order";
         }
-        if (!empty($this->params['limit'])) {
-            $sql .= " LIMIT 0,:limit";
-            $values[':limit'] = intval($this->params['limit']);
-        } else {
-            $sql .= " LIMIT 0,:limit";
-            $values[':limit'] = $this->max_queries;
-        }
+
+        $sql .= " LIMIT 0,:limit";
+        $values[':limit'] = (!empty($this->params['limit'])) ? 
+                intval($this->params['limit']) : $this->max_queries;
 
         return $this->execute('select', $sql, $values);
     }
@@ -154,11 +159,15 @@ class Database extends DatabaseAbstract
         $stmt->execute();
         $datas = $stmt->fetch();
         
-        if (!empty($datas)) {
-            throw new Exception($this->createJsonMessage('error', 
-                    'Entry already exists', 204));
-        } else {
-            return $this->execute('insert', $more[1], $more[0]);
+        try {
+            if (!empty($datas)) {
+                throw new Exception($this->createJsonMessage('error', 
+                        'Entry already exists', 204));
+            } else {
+                return $this->execute('insert', $more[1], $more[0]);
+            }            
+        } catch (Exception $e) {
+            $e->getMessage();
         }
     }
 
@@ -207,8 +216,6 @@ class Database extends DatabaseAbstract
     private function updateQuery()
     {
         $sql        = "UPDATE $this->clean_table SET ";
-        $customPk   = (isset($this->custom_pk[$this->table])) ?
-                $this->custom_pk[$this->table] : 'id';
 
         $count  = 0;
         $values = array();
@@ -220,7 +227,7 @@ class Database extends DatabaseAbstract
                 $values[":$key"] = $var;
             }
         }
-        $sql .= " WHERE $customPk=:id";
+        $sql .= " WHERE $this->primary_key=:id";
 
         $values[":id"] = $this->id;
 
@@ -234,9 +241,7 @@ class Database extends DatabaseAbstract
      */
     private function deleteQuery()
     {
-        $customPk   = (isset($this->custom_pk[$this->table])) ?
-                $this->custom_pk[$this->table] : 'id';
-        $sql    = "DELETE FROM $this->clean_table WHERE $customPk=:id";
+        $sql    = "DELETE FROM $this->clean_table WHERE $this->primary_key=:id";
         $values = array(':id' => $this->id);
 
         return $this->execute('delete', $sql, $values);
@@ -249,7 +254,7 @@ class Database extends DatabaseAbstract
      * @param  string    $type   Request type (select, insert, update, delete)
      * @param  string    $sql    Prepared statement
      * @param  array     $values Values to attach to the request
-     * @throws Exception
+     * @return mixed
      */
     private function execute($type, $sql, $values)
     {
@@ -265,7 +270,21 @@ class Database extends DatabaseAbstract
             $data = (!empty($this->id)) ? $stmt->fetch() : $stmt->fetchAll();
         }
 
-        if (is_bool($data)) {
+        return $this->getExceptionMessage($data);
+    }
+    
+    /**
+     * Get query exception message
+     * 
+     * @param  mixed $data
+     * @throws Exception
+     */
+    private function getExceptionMessage($data)
+    {
+        try {
+            if (!is_bool($data)) {
+                throw new Exception(json_encode($data));
+            }
             if (false === $data) {
                 throw new Exception($this->createJsonMessage('error', 
                         'Error during final request',204));
@@ -273,8 +292,9 @@ class Database extends DatabaseAbstract
                 throw new Exception($this->createJsonMessage('success', 
                         'Request successfully done', 200));
             }
-        } else {
-            echo json_encode($data);
-        }
+           
+        } catch (Exception $e) {
+            echo $e->getMessage();
+        }        
     }
 }

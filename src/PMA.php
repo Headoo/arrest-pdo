@@ -51,7 +51,7 @@ class PMA extends RestAbstract
      *
      * @var array
      */
-    public $allowedTables = array();
+    public $allowedTables = array();   
 
     /**
      * Constructor
@@ -72,49 +72,66 @@ class PMA extends RestAbstract
     /**
      * Hydrate database properties (table and id)
      * 
+     * @return boolean
      * @throws Exception
      */
     public function hydrateDatabaseProperties()
     {
+        if (true === $this->error) { return false;  }        
+        
         $url                    = $this->urlSegments;
         $this->database->table  = (!empty($url[0])) ? $url[0] : '';
         $table                  = $this->database->table;
 
-        if (!empty($table)) {
+        try {
+            if (empty($table)) {
+                throw new Exception($this->createJsonMessage('error',
+                        'No table specified', 404));                
+            }
             if (!empty($this->allowedTables) 
                     && !in_array($table, $this->allowedTables)) {
                 throw new Exception($this->createJsonMessage('error',
                         'Forbidden table', 404));
             }
             $this->database->id     = (!empty($url[1])) ? $url[1] : '';
+            
+        } catch (Exception $e) {
+            echo $e->getMessage();
+            $this->error = true;
         }
     }
 
     /**
      * Dispatch all values to different properties
      * 
+     * @return boolean
      * @throws Exception
      */
     public function authentifyRequest()
     {
+        if (true === $this->error) { return false; }
+        
         $ipsArray = explode(',', $this->ip['allowed_ips']);
-
-        $httpClientIp   = filter_input(INPUT_SERVER, 'HTTP_CLIENT_IP');
-        $httpXForwarded = filter_input(INPUT_SERVER, 'HTTP_X_FORWARDED_FOR');
-        $remoteAddr     = filter_input(INPUT_SERVER, 'REMOTE_ADDR');
-
-        if (!empty($httpClientIp)) {
-            $ip = $httpClientIp;
-        } elseif (!empty($httpXForwarded)) {
-            $ip = $httpXForwarded;
-        } else {
-            $ip = $remoteAddr;
+        $ip                = filter_input(INPUT_SERVER, 'REMOTE_ADDR');
+        $http_client_id    = filter_input(INPUT_SERVER, 'HTTP_CLIENT_IP');
+        $http_x_forwarded  = filter_input(INPUT_SERVER, 'HTTP_X_FORWARDED_FOR');
+        
+        if (!empty($http_client_id)) {
+            $ip = $http_client_id;
+        } elseif (!empty($http_x_forwarded)) {
+            $ip = $http_x_forwarded;
         }
 
-        if (!in_array($ip, $ipsArray)) {
-            throw new Exception($this->createJsonMessage('error', 
-                    'Not authorized http request', 404));
+        try {
+            if (!in_array($ip, $ipsArray)) {
+                throw new Exception($this->createJsonMessage('error', 
+                        'Not authorized http request', 404));
+            }           
+        } catch (Exception $e) {
+            echo $e->getMessage();
+            $this->error = true;
         }
+
     }
 
     /**
@@ -148,19 +165,26 @@ class PMA extends RestAbstract
      */
     public function rest()
     {
+        if (true === $this->error) {
+            return false;
+        }        
+        
         header('Content-type: application/json');
         $method = filter_input(INPUT_SERVER, "REQUEST_METHOD");
 
         $this->restSwitchCases($method);
-
-        if (!empty($this->forbiddenMethods) &&
-                in_array($method, $this->forbiddenMethods)) {
-            throw new Exception($this->createJsonMessage('error', 
-                    'Forbidden http method', 404));
-        } else {
-            $this->database->params = $this->params;
-
-            return $this->database->doQuery();
+        
+        try {
+            if (!empty($this->forbiddenMethods) &&
+                    in_array($method, $this->forbiddenMethods)) {
+                throw new Exception($this->createJsonMessage('error', 
+                        'Forbidden http method', 404));
+            } else {
+                $this->database->params = $this->params;
+                echo $this->database->doQuery();
+            }            
+        } catch (Exception $e) {
+            echo $e->getMessage();
         }
     }
 

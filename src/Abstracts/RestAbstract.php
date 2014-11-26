@@ -2,6 +2,7 @@
 namespace src\Abstracts;
 
 use src\Interfaces\RestInterface;
+use \Exception;
 
 /**
  * Rest abstract
@@ -27,6 +28,12 @@ abstract class RestAbstract implements RestInterface
      * @var mixed
      */
     public $params = array();
+    
+    /**
+     *
+     * @var boolean
+     */
+    public $error = false;     
 
 
     /**
@@ -44,18 +51,22 @@ abstract class RestAbstract implements RestInterface
         $segments   = (array) explode('/',
                 str_replace("/$baseUri/", '', $phpSelf));
 
-        if (!empty($segments[0])) {
+        try {
+            if (empty($segments[0])) {
+                 throw new Exception($this->createJsonMessage('error', 
+                        'Wrong url api', 404));              
+            }
             if (isset($segments[1]) && ($segments[1] != $baseUri)) {
                 $result = (array) $this->urlSegments = $segments;
             } elseif (!isset($segments[1])) {
                 $result = (array) $this->urlSegments = $segments;
             }
-        } else {
-            throw new Exception($this->createJsonMessage('error', 
-                    'Wrong url api', 404));
+            return $result;
+            
+        } catch (Exception $e) {
+            echo $e->getMessage();
+            $this->error = true;
         }
-
-        return $result;
     }
 
     /**
