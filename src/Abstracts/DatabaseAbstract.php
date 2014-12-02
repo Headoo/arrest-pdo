@@ -6,7 +6,7 @@
  * PHP version 5
  *
  * @category  Abstracts
- * @package   php-mysql-api
+ * @package   Arrest-PDO
  * @author    Edouard Kombo <edouard.kombo@gmail.com>, tech@headoo.com
  * @license   http://www.opensource.org/licenses/mit-license.php MIT License
  * @version   GIT: 1.0.0
@@ -16,20 +16,20 @@
 namespace src\Abstracts;
 
 use src\Interfaces\DatabaseInterface;
+use src\Abstracts\DatabaseDriverAbstract as Drivers;
 use \PDO;
-use \Exception;
 use \PDOException;
 
 /**
  * Database Abstract
  *
- * @category Interfaces
- * @package  php-mysql-api
+ * @category Abstracts
+ * @package  Arrest-PDO
  * @author   Edouard Kombo <edouard.kombo@gmail.com>, tech@headoo.com
  * @license  http://www.opensource.org/licenses/mit-license.php MIT License
  * @link     http://creativcoders.wordpress.com
  */
-abstract class DatabaseAbstract implements DatabaseInterface
+abstract class DatabaseAbstract extends Drivers implements DatabaseInterface
 {
     /**
      *
@@ -79,22 +79,28 @@ abstract class DatabaseAbstract implements DatabaseInterface
     }
 
     /**
-     *
-     *
-     * @param array $db_configs Database params
+     * Connect to database with pdo
+     * 
+     * @return mixed
      */
     public function connect()
     {
-        $database   = $this->db_configs['database'];
-        $server     = $this->db_configs['server'];
-        $username   = $this->db_configs['username'];
-        $password   = $this->db_configs['password'];
-        $dns        = "mysql:host=$server;dbname=$database";
-        $this->pdo  = new PDO($dns, $username, $password);
-
-        if (!is_object($this->pdo)) {
-            throw new Exception("unable to connect to database");
-        }
+        $configs                = $this->db_configs;
+        $this->database         = (string) $configs['database'];
+        $this->host             = (string) $configs['server'];
+        $this->user             = (string) $configs['username'];
+        $this->password         = (string) $configs['password'];
+        $this->port             = (string) $configs['port'];
+        $this->sqlitePathToDb   = (string) $configs['sqlite_path_to_db'];
+        $this->oraclePathToDb   = (string) $configs['oracle_path_to_db'];
+        $this->ibmPathToDb      = (string) $configs['ibm_path_to_db'];
+        $this->informixPathToDb = (string) $configs['informix_path_to_db'];        
+        $this->firebirdPathToDb = (string) $configs['firebird_path_to_db'];
+        $this->odbcPathToDb     = (string) $configs['odbc_path_to_db'];
+        $this->charset          = (string) $configs['charset'];
+        $driver                 = (string) $configs['pdo_driver'];
+        
+        return $this->pdo       = $this->{$driver}();
     }
 
     /**

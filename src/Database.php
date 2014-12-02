@@ -6,7 +6,7 @@
  * PHP version 5
  *
  * @category  Src
- * @package   php-mysql-api
+ * @package   Arrest-PDO
  * @author    Edouard Kombo <edouard.kombo@gmail.com>, tech@headoo.com
  * @license   http://www.opensource.org/licenses/mit-license.php MIT License
  * @version   GIT: 1.0.0
@@ -23,7 +23,7 @@ use \Exception;
  * Database Controller
  *
  * @category Src
- * @package  php-mysql-api
+ * @package  Arrest-PDO
  * @author   Edouard Kombo <edouard.kombo@gmail.com>, tech@headoo.com
  * @license  http://www.opensource.org/licenses/mit-license.php MIT License
  * @link     http://creativcoders.wordpress.com
@@ -65,7 +65,7 @@ class Database extends DatabaseAbstract
     {
         $this->parseDatabaseConfig($file);
     }
-
+    
     /**
      * Execute corresponding query
      *
@@ -191,18 +191,15 @@ class Database extends DatabaseAbstract
             }
         }
         $sql .= ") VALUES (";
-
         foreach ($this->params as $k => $v) {
             if ($k !== 'start_query') {
                 $count[1]++;
                 $sql .= ((count($this->params)-1) === $count[1])?":$k":":$k,";
                 $values[":$k"] = $v;
-
                 $selectQuery .= ((count($this->params)-1) === $count[1]) ?
                                 "$k=:$k" : "$k=:$k AND ";
             }
         }
-
         $sql .= ")";
 
         return array($values, $sql, $selectQuery);

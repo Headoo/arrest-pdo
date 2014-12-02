@@ -6,7 +6,7 @@
  * PHP version 5
  *
  * @category  Traits
- * @package   php-mysql-api
+ * @package   Arrest-PDO
  * @author    Edouard Kombo <edouard.kombo@gmail.com>, tech@headoo.com
  * @license   http://www.opensource.org/licenses/mit-license.php MIT License
  * @version   GIT: 1.0.0
@@ -19,7 +19,7 @@ namespace src\Traits;
  * Json Trait
  *
  * @category Traits
- * @package  php-mysql-api
+ * @package  Arrest-PDO
  * @author   Edouard Kombo <edouard.kombo@gmail.com>, tech@headoo.com
  * @license  http://www.opensource.org/licenses/mit-license.php MIT License
  * @link     http://creativcoders.wordpress.com

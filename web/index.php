@@ -4,6 +4,8 @@ require "../vendor/autoload.php";
 require "../src/Traits/JsonTrait.php";
 require "../src/Interfaces/RestInterface.php";
 require "../src/Interfaces/DatabaseInterface.php";
+require "../src/Interfaces/DatabaseDriverInterface.php";
+require "../src/Abstracts/DatabaseDriverAbstract.php";
 require "../src/Abstracts/DatabaseAbstract.php";
 require "../src/Abstracts/RestAbstract.php";
 require "../src/Database.php";

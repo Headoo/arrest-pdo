@@ -1,12 +1,14 @@
-PHP MYSQL API
-=============
+Arrest-PDO
+=========
 
 About
 -----
 
-Php-Mysql-Api "plug-n-play" and secure RESTful API for your MySQL database, including ip, http methods and tables access control.
-It provides a REST API that maps directly to your database structure instantly.
-it comes with a 'prod' and 'test' environment for rapid and reliable deployments on your server.
+Arrest-PDO is a "plug-n-play" and secure RESTful API for your favorite SGBDR. It actually supports Mysql, PostgreSql, SQLite, MsSql Server, Oracle, Firebird, Cubrid, Ibm, Informix, 4D and ODBC.
+Arrest-PDO is a fully completed and tested project based on Arrest-Mysql from Gil Bitron, https://github.com/gilbitron/Arrest-MySQL.
+It provides IP access control to secure your api access to people or a group of people you want.
+It also provides HTTP methods access control, to only allow access to specific methods for your api. Available HTTP methods are: GET,POST,PUT,DELETE.
+Easy to customize, it comes with two environments for rapid deployment on your server and unit testing: 'prod' and 'test' environments.
 
 This repository is fully tested with CodeCeption and respect PSR coding standards.
 
@@ -22,7 +24,7 @@ Require PHP version 5.4 or greater and Mysql 5 or greater.
 Installation
 ------------
 
-1. Put Php-mysql-api on your server and target Apache root directory to the web folder.
+1. Put Arrest-PDO on your server and target Apache root directory to the web folder.
 2. Apply chmod 0755 to all the project.
 3. Create an empty database "test" 
 4. In the "test" database, create a "test" table
@@ -53,12 +55,30 @@ The configuration is done in three quick steps, you have to configure the databa
         * Set login and password of your database
 ```
 
+SGBDR Configuration
+-------------------
+
+If you're using SQLite, Oracle, Ibm, Firebird, Informix or Odbc database system, inside your database.ini environment, just specify your dsn like this:
+```
+    sqlite_path_to_db=/opt/databases/mydb.sq3 
+
+    oracle_path_to_db =dbname=//localhost:1521/mydb 
+    
+    ibm_path_to_db=DRIVER={IBM DB2 ODBC DRIVER};DATABASE=testdb;HOSTNAME=11.22.33.444;PORT=56789;PROTOCOL=TCPIP;
+    
+    firebird_path_to_db=dbname=localhost:/var/lib/firebird/2.5/data/employee.fdb
+    
+    informix_path_to_db=host=host.domain.com;service=9800;database=common_db;server=ids_server;protocol=onsoctcp;EnableScrollableCursors=1
+    
+    odbc_path_to_db=DRIVER={IBM DB2 ODBC DRIVER};HOSTNAME=localhost;PORT=50000;DATABASE=SAMPLE;PROTOCOL=TCPIP;UID=db2inst1;PWD=ibmdb2; 
+```
+
 
 
 Run acceptance Tests with CodeCeption
 -------------------------------------
 
-Before anything, you will have to test the correct execution of Php-mysql-api in your environment.
+Before anything, you will have to test the correct execution of Arrest-PDO in your environment.
 For that, you will have to run acceptance tests written with codeception.
 
 Open your console line command at your root project and type
@@ -85,7 +105,7 @@ NB: If any error occured:
 Access control
 --------------
 
-Php-mysql-api provides IP access control, but can do further. Let's see this.
+Arrest-PDO provides IP access control, but can do further. Let's see this.
 
 For ip access control, in "app/{environment}/conf/ips.ini", you can specify any ip addresses you want, other ip addresses will be rejected.
 ```
@@ -110,7 +130,7 @@ Tables with specific primary keys
 
 By convention, a table primary key is called "id", but some tables may have a different name.
 
-Php-mysql-api helps you to easily specify these use cases.
+Arrest-PDO helps you to easily specify these use cases.
 
 Open "web/index.php", and specify in an associative array, the table and its primary key.
 ```
@@ -122,7 +142,7 @@ Open "web/index.php", and specify in an associative array, the table and its pri
 MORE Documentation
 ------------------
 
-For example lets suppose you have set up php-mysql-api at http://api.example.com and your database has a table in it called "users". To get a list of customers you would simply need to do:
+For example lets suppose you have set up Arrest-PDO at http://api.example.com and your database has a table in it called "users". To get a list of customers you would simply need to do:
 
 ```GET http://api.example.com/users```
 
@@ -132,7 +152,7 @@ Where "users" is the table name. As a response you would get a JSON formatted li
 
 Where "123" here is the ID of the customer. For more information on using Arrest MySQL see the Usage section below.
 
-To put this into practice below are some example of how you would use php-mysql-api:
+To put this into practice below are some example of how you would use Arrest-PDO:
 
 ```
 // Get all rows from the "users" table
@@ -210,6 +230,6 @@ If you want to help me improve this bundle, please make sure it conforms to the 
 Issues
 ------
 
-Bug reports and feature requests can be submitted on the [Github issues tracker](https://github.com/Headoo/php-mysql-api/issues).
+Bug reports and feature requests can be submitted on the [Github issues tracker](https://github.com/Headoo/Arrest-PDO/issues).
 
 For further informations, contact me directly at edouard.kombo@gmail.com or tech@headoo.com.
