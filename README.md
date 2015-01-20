@@ -232,4 +232,4 @@ Issues
 
 Bug reports and feature requests can be submitted on the [Github issues tracker](https://github.com/Headoo/Arrest-PDO/issues).
 
-For further informations, contact me directly at edouard.kombo@gmail.com or tech@headoo.com.
+For further informations, contact tech@headoo.com.
