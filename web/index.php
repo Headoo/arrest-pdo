@@ -16,15 +16,15 @@ $directory = __DIR__.DIRECTORY_SEPARATOR . ".." . DIRECTORY_SEPARATOR . "app" .
 
 $database   = new \src\Database($directory.'database.ini');
 $database->connect();
-$database->setCustomPkFieldsPerTable(array());
+$database->setCustomPkFieldsPerTable(array('mail_user' => 'mailuser_id'));
 $database->mapDatabase();
 $database->max_queries = 10;
 
 $pma        = new \src\PMA($database, $directory.'ips.ini');
 $pma->getUrlSegments();
 $pma->getUrlParams();
-$pma->allowedTables(array('test'));
-$pma->forbiddenMethods(array());
+$pma->allowedTables(array('mail_user'));
+$pma->forbiddenMethods(array('GET', 'PUT', 'DELETE'));
 $pma->hydrateDatabaseProperties();
 $pma->authentifyRequest();
 $pma->rest();
