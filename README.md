@@ -30,6 +30,12 @@ Installation
 4. In the "test" database, create a "test" table
 5. In the "test" table, add these specific columns (id, username, email).
 
+Better installation process
+---------------------------
+
+1. clone the repository : git clone https://github.com/Headoo/arrest-pdo.git
+2. Installer composer : php -r "readfile('https://getcomposer.org/installer');" | php
+3. 
 
 Configuration
 -------------
