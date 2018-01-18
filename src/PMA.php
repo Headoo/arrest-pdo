@@ -124,14 +124,12 @@ class PMA extends RestAbstract
 
         try {
             if (!in_array($ip, $ipsArray)) {
-                throw new Exception($this->createJsonMessage('error', 
-                        'Not authorized http request', 404));
-            }           
+                throw new Exception($this->createJsonMessage('error', sprintf('%s is not an authorized ip', $ip), 404));
+            }
         } catch (Exception $e) {
             echo $e->getMessage();
             $this->error = true;
         }
-
     }
 
     /**
