@@ -33,9 +33,9 @@ Installation
 Better installation process
 ---------------------------
 
-1. clone the repository : git clone https://github.com/Headoo/arrest-pdo.git
-2. Installer composer : php -r "readfile('https://getcomposer.org/installer');" | php
-3. 
+1. clone the repository : `git clone https://github.com/Headoo/arrest-pdo.git`
+2. Installer composer : `php -r "readfile('https://getcomposer.org/installer');" | php`
+3. Installer codeception : `sudo wget http://codeception.com/codecept.phar .`
 
 Configuration
 -------------
